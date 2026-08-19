@@ -1,0 +1,9 @@
+streamlit
+pymupdf
+sentence-transformers
+scikit-learn
+rank-bm25
+numpy
+pandas
+torchvision
+plotly
