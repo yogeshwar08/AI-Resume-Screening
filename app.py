@@ -2,7 +2,21 @@ import html
 import os
 import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
+import warnings
 
+# ============================================================
+# RUNTIME LOGGING CONFIGURATION
+# ============================================================
+
+os.environ["TRANSFORMERS_VERBOSITY"] = "critical"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+warnings.filterwarnings("ignore")
+
+logging.getLogger("transformers").setLevel(logging.CRITICAL)
+logging.getLogger("transformers.utils").setLevel(logging.CRITICAL)
+logging.getLogger("huggingface_hub").setLevel(logging.CRITICAL)
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
@@ -14,8 +28,26 @@ from src.semantic_matcher import calculate_semantic_scores
 from src.skill_matcher import calculate_skill_match
 from src.profile_matcher import calculate_profile_match
 from src.hybrid_scorer import calculate_hybrid_score
+import os
 
+os.environ["TRANSFORMERS_VERBOSITY"] = "critical"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+import os
+import logging
+import warnings
 
+# ============================================================
+# SUPPRESS TRANSFORMERS / HUGGING FACE WARNINGS
+# ============================================================
+
+os.environ["TRANSFORMERS_VERBOSITY"] = "critical"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+warnings.filterwarnings("ignore")
+
+logging.getLogger("transformers").setLevel(logging.CRITICAL)
+logging.getLogger("transformers.utils").setLevel(logging.CRITICAL)
+logging.getLogger("huggingface_hub").setLevel(logging.CRITICAL)
 # ============================================================
 # PAGE CONFIG
 # ============================================================
