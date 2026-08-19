@@ -1,3 +1,11 @@
+import os
+
+# Quiet transformers' architecture-registration log spam (the
+# "[ERROR] ... not documented" lines) — this is cosmetic noise from
+# importing transformers, not an actual error in your pipeline.
+os.environ.setdefault("TRANSFORMERS_VERBOSITY", "error")
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+
 try:
     from sentence_transformers import SentenceTransformer
 except ImportError:
@@ -6,6 +14,7 @@ except ImportError:
         "Install it with: pip install sentence-transformers"
     )
 
+import streamlit as st
 from sklearn.metrics.pairwise import cosine_similarity
 
 
@@ -13,7 +22,23 @@ from sklearn.metrics.pairwise import cosine_similarity
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 
-model = SentenceTransformer(MODEL_NAME)
+@st.cache_resource(show_spinner="Loading semantic model (first run only)...")
+def get_semantic_model() -> "SentenceTransformer":
+    """
+    Load the sentence-transformer model exactly once per Streamlit
+    session/process instead of on every import or rerun.
+
+    local_files_only is tried first: once the model is cached on disk
+    (~/.cache/torch/sentence_transformers/... or the HF cache dir),
+    this skips the network round-trip to Hugging Face Hub that was
+    causing the "unauthenticated requests" warning and slowing down
+    every load. If it's not cached yet, we fall back to a normal
+    (networked) load, which will populate that cache for next time.
+    """
+    try:
+        return SentenceTransformer(MODEL_NAME, local_files_only=True)
+    except Exception:
+        return SentenceTransformer(MODEL_NAME)
 
 
 def calculate_semantic_scores(
@@ -26,6 +51,8 @@ def calculate_semantic_scores(
 
     Returns scores from 0 to 100.
     """
+
+    model = get_semantic_model()
 
     # Encode job description
     job_embedding = model.encode(
