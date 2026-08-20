@@ -1,8 +1,10 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 streamlit
 pymupdf
 sentence-transformers==3.4.1
 scikit-learn==1.5.2
-torch==2.5.1
+torch==2.5.1+cpu
 rank-bm25
 numpy
 pandas
