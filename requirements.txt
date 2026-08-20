@@ -2,7 +2,7 @@ streamlit
 pymupdf
 sentence-transformers==3.4.1
 scikit-learn==1.5.2
-torch==2.5.1+cpu
+torch==2.5.1
 rank-bm25
 numpy
 pandas
