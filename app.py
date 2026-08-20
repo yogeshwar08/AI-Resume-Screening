@@ -1,3 +1,4 @@
+import gc
 import html
 import os
 import tempfile
@@ -28,26 +29,7 @@ from src.semantic_matcher import calculate_semantic_scores
 from src.skill_matcher import calculate_skill_match
 from src.profile_matcher import calculate_profile_match
 from src.hybrid_scorer import calculate_hybrid_score
-import os
 
-os.environ["TRANSFORMERS_VERBOSITY"] = "critical"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-import os
-import logging
-import warnings
-
-# ============================================================
-# SUPPRESS TRANSFORMERS / HUGGING FACE WARNINGS
-# ============================================================
-
-os.environ["TRANSFORMERS_VERBOSITY"] = "critical"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-warnings.filterwarnings("ignore")
-
-logging.getLogger("transformers").setLevel(logging.CRITICAL)
-logging.getLogger("transformers.utils").setLevel(logging.CRITICAL)
-logging.getLogger("huggingface_hub").setLevel(logging.CRITICAL)
 # ============================================================
 # PAGE CONFIG
 # ============================================================
@@ -500,6 +482,168 @@ st.markdown(
         padding: 8px 16px;
     }
 
+    /* ========================================================
+       FILE UPLOADER — dark background, white text
+       Uses [data-testid*="FileUploader"] (contains-match) so it
+       catches every element Streamlit tags with "FileUploader"
+       anywhere in the testid, regardless of exact naming across
+       versions — plus a class-based fallback with maximum
+       specificity so it wins over Streamlit's own inline styles.
+       ======================================================== */
+
+    [data-testid*="FileUploader"] {
+        background-color: #0a0c18 !important;
+        color: #ffffff !important;
+        border-color: rgba(255,255,255,0.18) !important;
+    }
+
+    [data-testid*="FileUploader"] * {
+        color: #ffffff !important;
+        background-color: transparent !important;
+    }
+
+    [data-testid*="FileUploader"] section {
+        background-color: #0a0c18 !important;
+        border: 1px dashed rgba(255,255,255,0.25) !important;
+        border-radius: 14px !important;
+    }
+
+    [data-testid*="FileUploader"] button {
+        background: linear-gradient(90deg, #6366f1, #a855f7) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+    }
+
+    [data-testid*="FileUploader"] svg {
+        fill: #ffffff !important;
+        stroke: #ffffff !important;
+    }
+
+    [data-testid*="FileUploader"] small,
+    [data-testid*="FileUploader"] span {
+        color: #d7deee !important;
+    }
+
+    /* ========================================================
+       SIDEBAR — make label/body text readable on the dark panel
+       ======================================================== */
+
+    section[data-testid="stSidebar"] * {
+        color: #e6e9f5 !important;
+    }
+
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] div[data-testid="stMarkdownContainer"] p {
+        color: #e6e9f5 !important;
+    }
+
+    /* ========================================================
+       CUSTOM COMPARISON TABLE — dark, multi-gradient, replaces
+       the default st.dataframe grid (which can't be restyled
+       with CSS since it renders on a canvas, not real HTML).
+       ======================================================== */
+
+    .cmp-table-wrap {
+        overflow-x: auto;
+        border-radius: 18px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: linear-gradient(160deg, rgba(10,12,24,0.96), rgba(10,12,24,0.88));
+        box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+    }
+
+    table.cmp-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+        color: #eef1fb;
+    }
+
+    table.cmp-table thead th {
+        text-align: left;
+        padding: 14px 16px;
+        font-weight: 800;
+        font-size: 12px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: #9aa4c2;
+        background: rgba(255,255,255,0.04);
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        white-space: nowrap;
+    }
+
+    table.cmp-table tbody td {
+        padding: 12px 16px;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    table.cmp-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    table.cmp-table tbody tr:hover {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .cmp-rank {
+        font-weight: 800;
+        color: #cdd6f4;
+    }
+
+    .cmp-candidate {
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .cmp-bar-cell {
+        min-width: 150px;
+    }
+
+    .cmp-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cmp-bar-track {
+        flex: 1;
+        height: 9px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        overflow: hidden;
+        position: relative;
+        min-width: 80px;
+    }
+
+    .cmp-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #60a5fa, #818cf8, #a78bfa, #e879f9, #f472b6);
+        background-size: 220% 100%;
+        box-shadow: 0 0 10px rgba(167,139,250,0.5);
+        animation: slidebarFlow 4s linear infinite;
+    }
+
+    .cmp-bar-fill.final {
+        background: linear-gradient(90deg, #fde68a, #fbbf24, #f59e0b, #f472b6);
+        box-shadow: 0 0 10px rgba(251,191,36,0.5);
+    }
+
+    .cmp-bar-value {
+        min-width: 46px;
+        text-align: right;
+        font-weight: 700;
+        color: #eef1fb;
+    }
+
+    .cmp-plain {
+        color: #cdd6f4;
+        font-weight: 600;
+    }
+
     </style>
     """,
     unsafe_allow_html=True,
@@ -630,6 +774,67 @@ def render_radar_chart(results: list[dict], max_candidates: int = 5) -> None:
     st.plotly_chart(fig, use_container_width=True)
 
 
+def _cmp_bar_cell(value: float, is_final: bool = False) -> str:
+    """Build one gradient progress-bar cell for the comparison table."""
+    pct = clamp_pct(value)
+    fill_class = "cmp-bar-fill final" if is_final else "cmp-bar-fill"
+    return (
+        f'<td class="cmp-bar-cell">'
+        f'<div class="cmp-bar-row">'
+        f'<div class="cmp-bar-track"><div class="{fill_class}" style="width:{pct}%;"></div></div>'
+        f'<span class="cmp-bar-value">{pct}%</span>'
+        f'</div>'
+        f'</td>'
+    )
+
+
+def render_comparison_table(results: list[dict]) -> None:
+    """
+    Render the candidate comparison table as custom dark, multi-gradient
+    HTML instead of st.dataframe. st.dataframe renders via a canvas-based
+    grid component internally, so CSS can't restyle its cell colors —
+    building real HTML here gives full control and matches the rest of
+    the app's dark gradient theme.
+    """
+    rows_html = []
+
+    for r in results:
+        safe_name = html.escape(str(r["Candidate"]))
+
+        row = (
+            "<tr>"
+            f'<td class="cmp-rank">#{r["Rank"]}</td>'
+            f'<td class="cmp-candidate">{safe_name}</td>'
+            + _cmp_bar_cell(r["Final Score"], is_final=True)
+            + _cmp_bar_cell(r["BM25"])
+            + _cmp_bar_cell(r["Semantic"])
+            + _cmp_bar_cell(r["Skills"])
+            + _cmp_bar_cell(r["Profile"])
+            + f'<td class="cmp-plain">{clamp_pct(r["Education"])}%</td>'
+            + f'<td class="cmp-plain">{clamp_pct(r["Role"])}%</td>'
+            + f'<td class="cmp-plain">{clamp_pct(r["Experience"])}%</td>'
+            + f'<td class="cmp-plain">{r["Required Experience"]} yrs</td>'
+            + f'<td class="cmp-plain">{r["Candidate Experience"]} yrs</td>'
+            + "</tr>"
+        )
+        rows_html.append(row)
+
+    table_html = (
+        '<div class="cmp-table-wrap">'
+        '<table class="cmp-table">'
+        "<thead><tr>"
+        "<th>Rank</th><th>Candidate</th><th>Final Score</th><th>BM25</th>"
+        "<th>Semantic</th><th>Skills</th><th>Profile</th><th>Education</th>"
+        "<th>Role</th><th>Experience</th><th>Required Exp.</th><th>Candidate Exp.</th>"
+        "</tr></thead>"
+        f"<tbody>{''.join(rows_html)}</tbody>"
+        "</table>"
+        "</div>"
+    )
+
+    st.markdown(table_html, unsafe_allow_html=True)
+
+
 def rank_chip_html(rank: int) -> str:
     if rank == 1:
         return '<span class="rank-chip rank-gold">🥇</span>'
@@ -640,7 +845,11 @@ def rank_chip_html(rank: int) -> str:
     return f'<span class="rank-chip">#{rank}</span>'
 
 
-@st.cache_data(show_spinner=False)
+# NOTE (memory): max_entries + ttl added so this cache can't grow forever.
+# On a 512MB instance, an unbounded @st.cache_data will eventually consume
+# all available memory across a long-running session with many different
+# uploads.
+@st.cache_data(show_spinner=False, max_entries=10, ttl=3600)
 def extract_and_clean_resume(file_bytes: bytes, filename: str) -> tuple[str, str | None]:
     """
     Extract + clean text from a single uploaded PDF.
@@ -675,6 +884,12 @@ def extract_all_resumes(files: list) -> tuple[list[str], list[str], list[str]]:
     PDF parsing is dominated by I/O + per-file CPU work that releases the GIL
     during library calls, so a thread pool lets files overlap instead of
     queueing behind each other.
+
+    NOTE (memory): worker count capped at 3 (down from 8). On a 512MB
+    instance, running many PDF parses concurrently multiplies peak memory
+    right at the moment the semantic model may also be loading — a lower
+    cap trades a little speed for a much safer memory ceiling.
+
     Returns (resume_texts, resume_names, error_messages), in a stable order
     matching the original upload order.
     """
@@ -686,7 +901,7 @@ def extract_all_resumes(files: list) -> tuple[list[str], list[str], list[str]]:
     status = st.empty()
     completed = 0
 
-    with ThreadPoolExecutor(max_workers=min(8, max(1, n))) as pool:
+    with ThreadPoolExecutor(max_workers=min(3, max(1, n))) as pool:
         future_to_index = {
             pool.submit(extract_and_clean_resume, f.getvalue(), f.name): idx
             for idx, f in enumerate(files)
@@ -720,13 +935,18 @@ def _score_one_resume(job_description: str, resume: str) -> dict:
     return {"skill_score": skill_result["score"], "profile": profile_result}
 
 
-@st.cache_data(show_spinner=False)
+# NOTE (memory): max_entries + ttl added, same reasoning as extract_and_clean_resume above.
+@st.cache_data(show_spinner=False, max_entries=10, ttl=3600)
 def score_candidates(job_description: str, resumes: tuple[str, ...]) -> dict:
     """
     Run all scoring engines once per (JD, resume-set) combination.
     BM25 and semantic scoring already operate on the whole batch in one call.
     Skill + profile matching are per-resume, so they're fanned out across a
     thread pool instead of looping sequentially.
+
+    NOTE (memory): worker count capped at 3 (down from 8), same reasoning
+    as extract_all_resumes above — fewer concurrent workers means a lower
+    peak memory footprint on a constrained instance.
     """
     bm25_scores = calculate_bm25_scores(job_description, list(resumes))
     semantic_scores = calculate_semantic_scores(job_description, list(resumes))
@@ -734,7 +954,7 @@ def score_candidates(job_description: str, resumes: tuple[str, ...]) -> dict:
     skill_scores: list = [None] * len(resumes)
     profile_results: list = [None] * len(resumes)
 
-    with ThreadPoolExecutor(max_workers=min(8, max(1, len(resumes)))) as pool:
+    with ThreadPoolExecutor(max_workers=min(3, max(1, len(resumes)))) as pool:
         future_to_index = {
             pool.submit(_score_one_resume, job_description, resume): idx
             for idx, resume in enumerate(resumes)
@@ -811,6 +1031,15 @@ def run_analysis(job_description_input: str, uploaded_files: list) -> None:
     st.session_state["results"] = results
     st.session_state["extraction_errors"] = extraction_errors
     st.session_state.pop("analysis_error", None)
+
+    # NOTE (memory): explicitly drop large intermediates and force a
+    # collection pass right after the heavy scoring work, instead of
+    # waiting for Python's garbage collector to get around to it. On a
+    # 512MB instance this helps release PDF text buffers and embedding
+    # arrays promptly rather than letting them linger until the next GC
+    # cycle.
+    del resumes, scores, bm25_scores, semantic_scores, skill_scores, profile_results
+    gc.collect()
 
 
 def render_results(results: list[dict], extraction_errors: list[str]) -> None:
@@ -928,20 +1157,9 @@ def render_results(results: list[dict], extraction_errors: list[str]) -> None:
         "Candidate Experience",
     ]
 
-    st.dataframe(
-        dataframe[display_columns],
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "Final Score": st.column_config.ProgressColumn(
-                "Final Score", min_value=0, max_value=100, format="%.1f%%"
-            ),
-            "BM25": st.column_config.ProgressColumn("BM25", min_value=0, max_value=100, format="%.1f%%"),
-            "Semantic": st.column_config.ProgressColumn("Semantic", min_value=0, max_value=100, format="%.1f%%"),
-            "Skills": st.column_config.ProgressColumn("Skills", min_value=0, max_value=100, format="%.1f%%"),
-            "Profile": st.column_config.ProgressColumn("Profile", min_value=0, max_value=100, format="%.1f%%"),
-        },
-    )
+    render_comparison_table(results)
+
+
 
     # ----------------------------------------------------
     # RANKING CARDS
@@ -1092,6 +1310,26 @@ job_description_input = st.text_area(
         "Python, Machine Learning, TensorFlow, "
         "LangChain and NLP experience..."
     ),
+)
+
+# Job Description text area styling — must be wrapped in st.markdown with
+# unsafe_allow_html=True. Raw CSS placed directly in a .py file (outside a
+# string) is invalid Python and will crash the app with a SyntaxError.
+st.markdown(
+    """
+    <style>
+    div[data-testid="stTextArea"] textarea {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        caret-color: #ffffff !important;
+    }
+
+    div[data-testid="stTextArea"] textarea::placeholder {
+        color: #9ca3af !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 
