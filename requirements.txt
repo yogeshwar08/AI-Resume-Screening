@@ -1,9 +1,8 @@
-streamlit
+streamlit==1.48.0
+plotly==6.3.0
 pymupdf
-sentence-transformers==3.4.1
-scikit-learn==1.5.2
-torch==2.5.1
+sentence-transformers
+scikit-learn
 rank-bm25
 numpy
 pandas
-plotly
